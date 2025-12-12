@@ -3,7 +3,9 @@ pragma solidity ^0.8.13;
 
 import {Test} from "lib/forge-std/src/Test.sol";
 import {NFT, RequestStatus, Rarity} from "src/NFT.sol";
-import {VRFCoordinatorV2_5Mock} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
+import {
+    VRFCoordinatorV2_5Mock
+} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 import {stdStorage, StdStorage} from "lib/forge-std/src/StdStorage.sol";
 using stdStorage for StdStorage;
 
@@ -27,24 +29,14 @@ contract NFTTest is Test {
         coordinatorMock.fundSubscription(subId, 10000000000 ether);
 
         // Create a instance of the NFT Contract
-        nftContract = new NFT(
-            "DnA collection",
-            "DnA",
-            1 ether,
-            1000,
-            address(coordinatorMock),
-            subId
-        );
+        nftContract = new NFT("DnA collection", "DnA", 1 ether, 1000, address(coordinatorMock), subId);
 
         // Add consumer/spender to the subscription
         coordinatorMock.addConsumer(subId, address(nftContract));
     }
 
     function testMint_OutOfSupply() public {
-        stdstore
-            .target(address(nftContract))
-            .sig("nextTokenId()")
-            .checked_write(1000);
+        stdstore.target(address(nftContract)).sig("nextTokenId()").checked_write(1000);
         vm.expectRevert("No more NFT available for minting");
         nftContract.mint{value: 1 ether}();
     }
@@ -67,7 +59,7 @@ contract NFTTest is Test {
         RequestStatus memory status = nftContract.getRequestStatus(requestId);
         assertTrue(status.fulfilled, "Request not fulfilled");
         assertTrue(status.randomWords[0] > 0, "Random number not received");
-        (, , , Rarity rarity, ) = nftContract.tokenIdMetadata(1);
+        (,,,,,,, Rarity rarity,) = nftContract.tokenIdMetadata(1);
         assertTrue(rarity == Rarity.Common, "Rarity assigned");
 
         // Checking balance and token owner after minting

@@ -8,30 +8,31 @@ import {IERC721} from "../lib/openzeppelin-contracts/contracts/token/ERC721/IERC
 import {VRFConsumerBaseV2Plus} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
-
-
 struct RequestStatus {
-        bool fulfilled;
-        bool exists;
-        uint256[] randomWords;
-    }
+    bool fulfilled;
+    bool exists;
+    uint256[] randomWords;
+}
 
-    struct TokenMetadata {
-        string collectionName;
-        string symbol;
-        uint256 tokenId;
-        Rarity rarity;
-        uint256 rarityNumber;
-    }
+struct TokenMetadata {
+    string collectionName;
+    string symbol;
+    uint256 tokenId;
+    string articleTitle;
+    string author;
+    uint256 publishDate;
+    string link;
+    Rarity rarity;
+    uint256 rarityNumber;
+}
 
-    enum Rarity {
-        Common,
-        Uncommon,
-        Rare,
-        Epic,
-        Legendary
-    }
-
+enum Rarity {
+    Common,
+    Uncommon,
+    Rare,
+    Epic,
+    Legendary
+}
 
 contract NFT is IERC721, IERC721Receiver, VRFConsumerBaseV2Plus {
     string private collectionName;
@@ -44,9 +45,6 @@ contract NFT is IERC721, IERC721Receiver, VRFConsumerBaseV2Plus {
     uint256[] public requestList;
     address public contractOwner;
     bool private locked;
-   
-
-    
 
     bytes32 private keyHash =
         0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae;
@@ -63,9 +61,6 @@ contract NFT is IERC721, IERC721Receiver, VRFConsumerBaseV2Plus {
     mapping(uint256 => address) public requestToOwner;
     mapping(uint256 => TokenMetadata) public tokenIdMetadata;
 
-    
-
-    
     mapping(uint256 => RequestStatus) public requestStatus;
 
     constructor(
@@ -92,7 +87,11 @@ contract NFT is IERC721, IERC721Receiver, VRFConsumerBaseV2Plus {
     }
 
     event RequestSent(uint256 indexed requestId, uint32 numWords);
-    event RequestFulfilled(uint256 indexed requestId, uint256[] randomWords, uint256 rarityNumber);
+    event RequestFulfilled(
+        uint256 indexed requestId,
+        uint256[] randomWords,
+        uint256 rarityNumber
+    );
 
     modifier nonReentrant() {
         require(!locked, "Reentrancy detected");
@@ -117,6 +116,29 @@ contract NFT is IERC721, IERC721Receiver, VRFConsumerBaseV2Plus {
         uint256 tokenId
     ) public view returns (TokenMetadata memory) {
         return tokenIdMetadata[tokenId];
+    }
+
+    event SettedMetadata(
+        uint256 indexed tokenId,
+        string indexed author,
+        uint256 indexed publishDate,
+        string link,
+        string articleTitle
+    );
+
+    function setMetadata(
+        string memory articleTitle,
+        string memory author,
+        uint256 publishDate,
+        string memory link,
+        uint256 tokenId
+    ) external {
+        require(msg.sender == contractOwner, "Contract owner only");
+        tokenIdMetadata[tokenId].articleTitle = articleTitle;
+        tokenIdMetadata[tokenId].author = author;
+        tokenIdMetadata[tokenId].publishDate = publishDate;
+        tokenIdMetadata[tokenId].link = link;
+        emit SettedMetadata(tokenId, author, publishDate, link, articleTitle);
     }
 
     function getContractBalance() public view returns (uint256) {
@@ -190,14 +212,17 @@ contract NFT is IERC721, IERC721Receiver, VRFConsumerBaseV2Plus {
         requestStatus[_requestId].randomWords = _randomWords;
         uint256 rarityNumber = _randomWords[0] % 21;
         uint256 tokenId = requestToTokenId[_requestId];
-        if (rarityNumber < 11 && rarityNumber > 0) tokenIdMetadata[tokenId].rarity = Rarity.Common;
-        else if (rarityNumber < 15)
+        if (rarityNumber < 11 && rarityNumber > 0) {
+            tokenIdMetadata[tokenId].rarity = Rarity.Common;
+        } else if (rarityNumber < 15) {
             tokenIdMetadata[tokenId].rarity = Rarity.Uncommon;
-        else if (rarityNumber < 18)
+        } else if (rarityNumber < 18) {
             tokenIdMetadata[tokenId].rarity = Rarity.Rare;
-        else if (rarityNumber < 20)
+        } else if (rarityNumber < 20) {
             tokenIdMetadata[tokenId].rarity = Rarity.Epic;
-        else tokenIdMetadata[tokenId].rarity = Rarity.Legendary;
+        } else {
+            tokenIdMetadata[tokenId].rarity = Rarity.Legendary;
+        }
         address owner = requestToOwner[_requestId];
         tokenIdOwner[tokenId] = owner;
         balance[tokenIdOwner[tokenId]]++;
