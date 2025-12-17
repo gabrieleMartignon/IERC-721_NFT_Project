@@ -1,66 +1,85 @@
-## Foundry
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+## License
 
-Foundry consists of:
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
 
-## Documentation
+# Project Overview
+This project implements an IERC-721 compatible token collection using Solidity for smart contract logic, Chainlink VRF for generating the token rarity randomness and Foundry as framework for compiling, testing and deploying.
 
-https://book.getfoundry.sh/
 
-## Usage
+## Features
 
-### Build
+- Collection tokenomics fully customizable.
+- Implements the IERC721 interface, ensuring compliance with the NFT standard for transfers, approvals, and ownership tracking.
+- Implements Chainlink VRF for a trustful source of number randomness.
+- Each token stores metadata, including token rarity. 
+- Secure fund withdrawal restricted to contract owner.
+- Includes unit tests covering both success and failure cases.
+- Supports IERC721Receiver for safe contract-to-contract transfers.
+- Includes a standard deploy script.
+- JSONs and NFTs images are saved on IPFS network.
 
-```shell
-$ forge build
+
+## Run Locally on WSL  (Windows Subsystem for Linux) <br>https://learn.microsoft.com/en-us/windows/wsl/install
+
+Want to run this project? Make sure 
+
+```bash
+  git clone https://github.com/gabrieleMartignon/DnA-Collection-NFTs
 ```
 
-### Test
+Go to the project directory
 
-```shell
-$ forge test
+```bash
+  cd DnA-Collection-NFTs
 ```
 
-### Format
+Compile 
 
-```shell
-$ forge fmt
+```bash
+  forge compile
 ```
 
-### Gas Snapshots
+Test 
 
-```shell
-$ forge snapshot
+```bash
+ forge test -vv
 ```
 
-### Anvil
+Start your local blockchain
 
-```shell
-$ anvil
+```bash
+anvil
+
 ```
 
-### Deploy
+Now you can deploy the project to your local simulated blockchain using the script included in the project
+```bash
+forge script script/NFT.s.sol --rpc-url 127.0.0.1:8545 --private-key <YOUR-PRIVATE-KEY> --broadcast
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
 
-### Cast
 
-```shell
-$ cast <subcommand>
-```
 
-### Help
+# Risks & Disclaimers
+This project is a learning prototype. Do not deploy to mainnet with real funds without extensive auditing, tests, and legal review. Economic parameters are illustrative.
+These tests and this contract are not intended to be production-ready.
+## Tech Stack
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+- **Solidity** — [Docs](https://docs.soliditylang.org/en/v0.8.30/)
+- **Foundry** — [Docs](https://getfoundry.sh/)
+- **Chainlink VRF** — [Docs](https://docs.chain.link/vrf)
+
+## Author
+
+- [Gabriele Martignon](https://github.com/gabrieleMartignon)
+
+## Contacts
+
+**Gabriele Martignon** | Master in Blockchain Development | Blockchain & Web3 Developer  
+- Personal Portfolio (in development): https://gabrielemartignon.github.io/  
+- Email: gabrielemartignon@gmail.com  
+- GitHub: https://github.com/gabrieleMartignon  
+- LinkedIn: https://www.linkedin.com/in/gabrielemartignon
+- Project Contract deployed on Sepolia : [https://sepolia.etherscan.io/address/0x93c3514f01f11f1729a8bbf341b79fd22e86f4f0](https://sepolia.etherscan.io/address/0x93c3514f01f11f1729a8bbf341b79fd22e86f4f0)
